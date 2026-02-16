@@ -25,7 +25,7 @@
 (if (version< emacs-version "24.4")
     (require 'setup-ivy-counsel)
   (require 'setup-helm)
-  (require 'setup-helm-gtags)
+;  (require 'setup-helm-gtags)
   )
 
 ;; (require 'setup-ggtags)
@@ -49,7 +49,7 @@
 
 (require 'magit)
 (set-default 'magit-stage-all-confirm nil)
-(add-hook 'magit-mode-hook 'magit-load-config-extensions)
+;(add-hook 'magit-mode-hook 'magit-load-config-extensions)
 
 ;; full screen magit-status
 (defadvice magit-status (around magit-fullscreen activate)
@@ -67,6 +67,30 @@
 (global-set-key (kbd "C-x g r") 'magit-reflog)
 (global-set-key (kbd "C-x g t") 'magit-tag)
 
+; on MacOS, C-up and C-down are bound by the finder to show all windows show all app windows, soit overrides the move paragraph forward and back.
+; M-e and M-a are not bound so use them for that tool
+(global-set-key (kbd "ESC <down>") 'forward-paragraph)
+(global-set-key (kbd "ESC <up>") 'backward-paragraph)
+
+
+; ensures eglot is installed and installs it if not
+(use-package eglot
+  :ensure t)
+
+(require 'eglot)
+
+;; install and enable platformio mode if needed
+(use-package platformio-mode
+  :ensure t)
+(require 'platformio-mode)
+
+;; Enable ccls for all c++ files, and platformio-mode only
+;; when needed (platformio.ini present in project root).
+(add-hook 'c++-mode-hook (lambda ()
+                           (lsp-deferred)
+                           (platformio-conditionally-enable)))
+;; end platformio
+
 ;; function-args
 ;; (require 'function-args)
 ;; (fa-config-default)
@@ -78,8 +102,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-startup-truncated nil)
- '(package-selected-packages
-   '(eglot helm-ag magit zygospore helm-gtags helm yasnippet ws-butler volatile-highlights use-package undo-tree iedit dtrt-indent counsel-projectile company clean-aindent-mode anzu)))
+ '(package-selected-packages nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
