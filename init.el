@@ -123,3 +123,85 @@ buffer is not visiting a file, prompt for a file name."
     (if buffer-file-name
         (find-alternate-file tramp-path)
       (find-file tramp-path))))
+
+;; For MacOS use commad key as meta
+;;(setq mac-command-modifier 'meta)
+;; use ALT key as meta, because PC ALT key is mapped by MacOS as the 'option' key
+(setq mac-option-modifier 'meta)
+
+;; pfd-tools
+(use-package pdf-tools
+  :ensure t)
+(require 'pdf-tools)
+(pdf-tools-install :no-query)  ; Standard activation command
+;(pdf-loader-install) ; On demand loading, leads to faster startup time
+(require 'pdf-info)
+(require 'pdf-util)
+
+;; gptel
+(use-package gptel
+  :ensure t)
+(require 'gptel)
+
+;; Llama.cpp offers an OpenAI compatible API
+;; configure my default gptel backend
+(setq gptel-track-media 't) ; Ensure media mode is on
+(setq
+ gptel-model   'local-llama
+ gptel-backend (gptel-make-openai "llama-cpp"          ;Any name
+                   :stream t                           ;Stream responses
+                   :protocol "http"
+                   :host "files.bschwand.net:8080"     ;Llama.cpp server location
+                   :models              ;Any names, doesn't matter for Llama
+                    '((local-llama
+                      :description "my own local llama-server instance"
+                      :capabilities (media tool-use json url)
+                      :mime-types ("image/jpeg" "image/png" "image/gif" "image/webp" "text/plain" "text/csv" "text/html")))))
+
+;; "application/pdf"
+;; llama does not support PDF files, only images. this does the conversion
+(defun pdf-to-images-path (file-path)
+  "Export selected PDF file pages as PNG images."
+  (interactive "fSelect a PDF file: ")
+  (let* ((pdf-buf (find-file-noselect file-path))
+         (pdf-name (file-name-base file-path))
+         (output-dir (make-temp-file (concat pdf-name "-images") t))
+         (total-pages (pdf-info-number-of-pages pdf-buf)))
+    (set-buffer pdf-buf)
+    (cl-loop for page from 1 to total-pages do
+             (let ((image (pdf-view-create-page page)))
+               (with-temp-buffer
+                 (insert (plist-get (cdr image) :data))
+                 (write-region (point-min) (point-max)
+                               (format "%s/page-%03d.png" output-dir page)))))
+    (message "PDF pages exported as images in %s" output-dir)
+    (kill-buffer pdf-buf)
+    output-dir)
+  )
+
+;; tell gptel about our function above so it does the conversion of PDF into PNG and use them
+(define-advice gptel-add-file (:filter-args (path) )
+  (if-let* ((gptel--model-capable-p 'media)
+            (mime (mailcap-file-name-to-mime-type (car path)))
+            ;; Check if PATH is a pdf, and if the model supports PNG but not PDF
+            ((and (equal mime "application/pdf")
+                  (not (gptel--model-mime-capable-p mime))
+                  (gptel--model-mime-capable-p "image/png"))))
+      (list (pdf-to-images-path (car path)))
+    path))
+
+;;  "application/pdf"
+;; (setq
+;;  gptel-model   'local-llama
+;;  gptel-backend (gptel-make-openai "llama-cpp"          ;Any name
+;;                  :stream t                           ;Stream responses
+;;                  :protocol "http"
+;;                  :host "files.bschwand.net:8080"     ;Llama.cpp server location
+;;                  :models              ;Any names, doesn't matter for Llama
+;;                  '("gpt-5")))
+
+
+;; gptel agents
+(use-package gptel-agent
+  :ensure t)
+(require 'gptel-agent)
