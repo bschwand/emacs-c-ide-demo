@@ -82,6 +82,11 @@
 
 (require 'eglot)
 
+;; we need this for cross-compilation so clangd/eglot uses the definitions
+;; for the embedded target, in conjunction with compile_command.json
+(add-to-list 'eglot-server-programs
+             `((c++-mode c-mode) "clangd" "--query-driver=/**/*"))
+
 ;; install and enable platformio mode if needed
 (use-package platformio-mode
   :ensure t)
@@ -105,7 +110,8 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-startup-truncated nil)
- '(package-selected-packages nil))
+ '(package-selected-packages
+   '(gptel-agent gptel pdf-tools zygospore yasnippet ws-butler volatile-highlights undo-tree platformio-mode magit iedit helm-projectile dtrt-indent company comment-dwim-2 clean-aindent-mode anzu)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -132,6 +138,8 @@ buffer is not visiting a file, prompt for a file name."
 ;;(setq mac-command-modifier 'meta)
 ;; use ALT key as meta, because PC ALT key is mapped by MacOS as the 'option' key
 (setq mac-option-modifier 'meta)
+;; leave right ALT as normal mac modifier so we can enter special characters
+(setq mac-right-option-modifier 'none)
 
 ;; pfd-tools
 (use-package pdf-tools
@@ -204,7 +212,7 @@ buffer is not visiting a file, prompt for a file name."
 ;;                  :models              ;Any names, doesn't matter for Llama
 ;;                  '("gpt-5")))
 
-
+(setq gptel-log-level 'debug)
 ;; gptel agents
 (setq gptel-max-tokens 262000)
 (use-package gptel-agent
