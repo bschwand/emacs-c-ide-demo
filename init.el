@@ -38,6 +38,9 @@
 (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
 (setq projectile-indexing-method 'alien)
 
+;; jump to help window when it is displayed
+(setq help-window-select t)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; PACKAGE: magit                       ;;
 ;;                                      ;;
@@ -108,7 +111,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(magit-diff-added ((t (:extend t :background "#335533" :foreground "black"))))
+ '(magit-diff-added-highlight ((t (:extend t :background "#336633" :foreground "black")))))
 
 (defun open-this-file-as-other-user (user)
   "Edit current file as USER, using `tramp' and `sudo'.  If the current
@@ -151,7 +155,7 @@ buffer is not visiting a file, prompt for a file name."
  gptel-backend (gptel-make-openai "llama-cpp"          ;Any name
                    :stream t                           ;Stream responses
                    :protocol "http"
-                   :host "files.bschwand.net:8080"     ;Llama.cpp server location
+                   :host "bigboss:8080"     ;Llama.cpp server location
                    :models              ;Any names, doesn't matter for Llama
                     '((local-llama
                       :description "my own local llama-server instance"
@@ -202,6 +206,7 @@ buffer is not visiting a file, prompt for a file name."
 
 
 ;; gptel agents
+(setq gptel-max-tokens 262000)
 (use-package gptel-agent
   :ensure t)
 (require 'gptel-agent)
