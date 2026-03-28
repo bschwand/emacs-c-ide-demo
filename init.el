@@ -79,12 +79,10 @@
 ; ensures eglot is installed and installs it if not
 (use-package eglot
   :ensure t)
-
 (require 'eglot)
 
 (use-package sr-speedbar
   :ensure t)
-(require 'sr-speedbard)
 
 ;; we need this for cross-compilation so clangd/eglot uses the definitions
 ;; for the embedded target, in conjunction with compile_command.json
@@ -115,7 +113,10 @@
  ;; If there is more than one, they won't work right.
  '(org-startup-truncated nil)
  '(package-selected-packages
-   '(sr-speedbar gptel-agent gptel pdf-tools zygospore yasnippet ws-butler volatile-highlights undo-tree platformio-mode magit iedit helm-projectile dtrt-indent company comment-dwim-2 clean-aindent-mode anzu)))
+   '(anzu clean-aindent-mode comment-dwim-2 company dtrt-indent gptel
+          gptel-agent helm-projectile iedit magit pdf-tools
+          platformio-mode sr-speedbar undo-tree volatile-highlights
+          ws-butler yasnippet zygospore)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
